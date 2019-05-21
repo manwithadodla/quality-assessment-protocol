@@ -57,12 +57,10 @@ def template_workflow(workflow, resource_pool, config, name="_"):
     """
 
     import copy
-    import nipype.interfaces.io as nio
     import nipype.pipeline.engine as pe
-    import nipype.interfaces.utility as util
 
-    ### Check resource pool for expected resources and call pre-requisite
-    ### workflows if necessary
+    # Check resource pool for expected resources and call pre-requisite
+    # workflows if necessary
     if "{resource name}" not in resource_pool.keys():
 
         from module import workflow_function
@@ -73,16 +71,16 @@ def template_workflow(workflow, resource_pool, config, name="_"):
         if resource_pool == old_rp:
             return workflow, resource_pool
 
-    ### Node declarations and configuration, node connections
+    # Node declarations and configuration, node connections
     node_one = pe.Node(interface=nipype_module.Interface(),
-                       name='node_one%s' % name)
+                       name='node_one{}'.format(name))
 
     node_two = pe.Node(interface=nipype_module.Interface(),
-                       name='node_two%s' % name)
+                       name='node_two{}'.format(name))
 
-    ### Check if the resource is a tuple or a string
-    ### - if it's a tuple: it's a Nipype workflow connection pointer
-    ### - if it's a string: it's a filepath to the resource file on disk
+    # Check if the resource is a tuple or a string
+    # - if it's a tuple: it's a Nipype workflow connection pointer
+    # - if it's a string: it's a filepath to the resource file on disk
     if len(resource_pool["{resource name}"]) == 2:
         node, out_file = resource_pool["{resource name}"]
         workflow.connect(node, out_file, node_one, 'input_file')
@@ -91,8 +89,8 @@ def template_workflow(workflow, resource_pool, config, name="_"):
 
     workflow.connect(node_one, 'output_file', node_two, 'input_file')
 
-    ### "Send" final output to resource pool in the form of a Nipype workflow
-    ### connection pointer (the tuple)
+    # "Send" final output to resource pool in the form of a Nipype workflow
+    # connection pointer (the tuple)
     resource_pool["{resource name}"] = (node_two, 'output_file')
 
     return workflow, resource_pool
@@ -145,7 +143,7 @@ def run_template_workflow(input_resource, out_dir=None, run=True):
     resource_pool["input_resource"] = input_resource
 
     workflow, resource_pool = \
-            template_workflow(workflow, resource_pool, config)
+        template_workflow(workflow, resource_pool, config)
 
     ds = pe.Node(nio.DataSink(), name='datasink_workflow_name')
     ds.inputs.base_directory = workflow_dir
@@ -154,9 +152,8 @@ def run_template_workflow(input_resource, out_dir=None, run=True):
 
     workflow.connect(node, out_file, ds, output)
 
-    if run == True:
-        workflow.run(plugin='MultiProc', plugin_args= \
-                         {'n_procs': num_cores_per_subject})
+    if run:
+        workflow.run(plugin='MultiProc', plugin_args={'n_procs': num_cores_per_subject})
         outpath = glob.glob(os.path.join(workflow_dir, output, "*"))[0]
         return outpath
     else:

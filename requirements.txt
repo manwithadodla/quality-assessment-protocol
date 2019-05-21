@@ -1,3 +1,4 @@
+module
 numpy>=1.11.0
 INDI-Tools>=0.0.6
 Pillow>=3.2.0

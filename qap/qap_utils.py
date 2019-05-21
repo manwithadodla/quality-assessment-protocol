@@ -69,7 +69,7 @@ def write_nifti_image(nifti_img, file_path):
 
     try:
         nibabel.save(nifti_img, file_path)
-    except:
+    except RuntimeError:
         err = "\n\n[!] Could not save the NIFTI image using Nibabel:\n{0}\n\n".format(file_path)
         raise_smart_exception(locals(), err)
 
@@ -88,7 +88,7 @@ def read_json(json_filename):
     try:
         with open(json_filename, "r") as f:
             json_dict = json.load(f)
-    except:
+    except BufferError:
         err = "\n\n[!] Could not load JSON file {0}\n\n".format(json_filename)
         raise_smart_exception(locals(), err)
 
@@ -157,7 +157,7 @@ def load_image(image_file, return_img=False):
         dat = voxel_data.astype('float32')
         # Check for negative values
         if (voxel_data < 0).any():
-            print("found negative values, setting to zero (see file: %s)".format(image_file))
+            print("found negative values, setting to zero (see file: {0})".format(image_file))
             dat[dat < 0] = 0
 
     elif numpy.issubdtype(voxel_data.dtype, int):
@@ -167,7 +167,7 @@ def load_image(image_file, return_img=False):
         dat = voxel_data.astype(numpy.uint8)
 
     else:
-        msg = "Error: Unknown datatype %s" % voxel_data.dtype
+        msg = "Error: Unknown datatype {0}".format(voxel_data.dtype)
         raise_smart_exception(locals(), msg)
 
     if return_img:
@@ -191,7 +191,7 @@ def load_mask(mask_file, ref_file):
 
     try:
         nifti_image = nibabel.load(mask_file)
-    except:
+    except BufferError as e:
         raise_smart_exception(locals())
 
     mask_data = nifti_image.get_data()
@@ -291,7 +291,7 @@ def check_config_settings(config, parameter):
     """
 
     if parameter not in config.keys():
-        err = "[!] The parameter '%s' is missing from your pipeline configuration .YML file.".format(parameter)
+        err = "[!] The parameter '{0}' is missing from your pipeline configuration .YML file.".format(parameter)
         raise_smart_exception(locals(), err)
 
 

@@ -75,7 +75,7 @@ def csv_to_pandas_df(csv_file):
         data = pd.read_csv(csv_file, dtype={"Participant": str})
     except Exception as e:
         err = "Could not load the CSV file into a DataFrame using Pandas." \
-              "\n\nCSV file: %s\n\nError details: %s\n\n" % (csv_file, e)
+              "\n\nCSV file: {}\n\nError details: {}\n\n".format(csv_file, e)
         raise_smart_exception(locals(), err)
 
     return data
@@ -266,7 +266,7 @@ def gather_custom_raw_data(filepath_list, base_folder, directory_format, anatomi
     :type directory_format: str
     :param directory_format: A string describing the data directory layout in
                              the format '/{site}/{participant}/{session}/..'
-                             etc. wehre the order of the {} items can vary.
+                             etc. where the order of the {} items can vary.
     :type anatomical_keywords: str
     :param anatomical_keywords: (default: None) A string of space-delimited
                                 keywords that may be in the NIFTI filepath or
@@ -438,7 +438,6 @@ def json_to_csv(json_dict, csv_output_dir=None):
         # flatten the JSON dict
         sub_json_dict = json_dict[sub_sess_scan]
         header_dict = {}
-        qap_dict = {}
 
         # TODO: this code doesnt seem to do anything ?? header_dict is overwritten at the next opportunity
         try:
@@ -523,7 +522,7 @@ def qap_csv_correlations(data_old, data_new, replacements=None):
             if "," not in word_couple:
                 err = "\n\n[!] In the replacements text file, the old " \
                       "substring and its replacement must be separated " \
-                      "by a comma.\n\nLine: %s\n\n" % word_couple
+                      "by a comma.\n\nLine: {}\n\n".format(word_couple)
                 raise Exception(err)
             word = word_couple.split(",")[0]
             new = word_couple.split(",")[1]
@@ -575,7 +574,7 @@ def qap_csv_correlations(data_old, data_new, replacements=None):
                                    on=["Participant", "Session", "Series"],
                                    how="inner",
                                    suffixes=("_OLD", "_NEW"))
-        except:
+        except TypeError:
             pass
         if len(data_merged) == 0:
             err = "[!] There were no participant matches between the two " \
@@ -606,7 +605,7 @@ def write_inputs_dict_to_yaml_file(input_dict, yaml_outpath):
     :param input_dict: A participant data dictionary keyed by participant
                        information.
     :type yaml_outpath: str
-    :param yaml_outpath: The filepath wehre to write the YAML file to.
+    :param yaml_outpath: The filepath where to write the YAML file to.
     """
 
     import os
@@ -620,7 +619,7 @@ def write_inputs_dict_to_yaml_file(input_dict, yaml_outpath):
     try:
         with open(yaml_outpath, "wt") as f:
             f.write(yaml.dump(input_dict))
-    except:
+    except OSError:
         err = "\n\n[!] Error writing YAML file output.\n1. Do you have " \
               "write permissions for the output path provided?\n2. Did you " \
               "provide a full path for the output path? Example: /home/data" \
@@ -631,7 +630,7 @@ def write_inputs_dict_to_yaml_file(input_dict, yaml_outpath):
         print("\nInputs dictionary file successfully created: {0}\n".format(yaml_outpath))
     else:
         err = "\n[!] Filepaths from the have not been successfully saved to the YAML file!\n" \
-              "Output filepath: %s\n".format(yaml_outpath)
+              "Output filepath: {}\n".format(yaml_outpath)
         raise Exception(err)
 
 
